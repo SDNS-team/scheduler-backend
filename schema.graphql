@@ -1,0 +1,257 @@
+type Query {
+  weeklySchedule(filter: WeeklyScheduleFilter!): Schedule
+
+  educators(filter: EducatorFilter!): EducatorPageable!
+  educationSubjects(filter: EducationSubjectFilter!): EducationSubjectPageable!
+}
+
+type Mutation {
+  createSchedule(input: CreateScheduleInput!): Schedule!
+  updateSchedule(input: UpdateScheduleInput!): Schedule!
+  removeSchedule(id: ID!): Boolean!
+
+  createLesson(input: CreateLessonInput!): Lesson!
+  updateLesson(input: UpdateLessonInput!): Lesson!
+  removeLesson(id: ID!): Boolean!
+
+  createEducationSubject(input: CreateEducationSubjectInput!): Subject!
+  updateEducationSubject(input: UpdateEducationSubjectInput!): Subject!
+  removeEducationSubject(id: ID!): Boolean!
+
+  createEducation(input: CreateEducationInput!): Education!
+  updateEducation(input: UpdateEducationInput!): Education!
+  removeEducation(id: ID!): Boolean!
+
+  createGroup(input: CreateGroupInput!): Group!
+  updateGroup(input: UpdateGroupInput!): Group!
+  removeGroup(id: ID!): Boolean!
+
+  createUniversity(input: CreateUniversityInput!): University!
+  updateUniversity(input: UpdateUniversityInput!): University!
+  removeUniversity(id: ID!): Boolean!
+}
+
+# Filters
+# Если НЕ передавать НЕобязательные свойства, то фильтровать НЕ будет!!
+type WeeklyScheduleFilter {
+  # День, который входит в интервал расписания
+  # *ищется между Schedule.dateStart и Schedule.dateEnd
+  date: Date!
+  weekDay: [WeekDay!]
+  weekType: WeekType
+  groupId: ID
+  educationSubjectId: ID
+  educationId: ID
+  educationSubjectType: EducationSubjectType
+  classroom: String
+}
+
+type EducatorFilter {
+  firstname: String
+  lastname: String
+  patronymic: String
+  universityId: ID
+}
+
+type EducationSubjectFilter {
+  name: String
+  universityId: ID
+}
+
+# Inputs
+type CreateScheduleInput {
+  name: String!
+  dateStart: Date!
+  dateEnd: Date!
+  universityId: ID!
+}
+
+type UpdateScheduleInput {
+  id: ID!
+  name: String
+  dateStart: Date
+  dateEnd: Date
+  universityId: ID
+}
+
+# При создании или изменении урока, нужно проверять чтоб
+# Schedule.universityId == Group.universityId == EducationSubject.universityId == educator.universityId
+type CreateLessonInput {
+  time: time!
+  weekDay: WeekDay!
+  weekType: WeekType!
+  educationSubjectId: ID!
+  educationSubjectType: EducationSubjectType!
+  educatorId: ID!
+  classroom: String!
+  groupId: ID!
+  scheduleId: ID!
+}
+
+type UpdateLessonInput {
+  id: ID!
+  time: time
+  weekDay: WeekDay
+  weekType: WeekType
+  educationSubjectId: ID
+  educationSubjectType: EducationSubjectType
+  educatorId: ID
+  classroom: String
+  groupId: ID
+  scheduleId: ID
+}
+
+type CreateEducationSubjectInput {
+  name: String!
+  universityId: ID!
+}
+
+type UpdateEducationSubjectInput {
+  id: ID!
+  name: String
+  universityId: ID!
+}
+
+type CreateEducatorInput {
+  firstname: String
+  lastname: String!
+  patronymic: String
+  universityId: ID!
+}
+
+type UpdateEducatorInput {
+  id: ID!
+  firstname: String
+  lastname: String
+  patronymic: String
+  universityId: ID
+}
+
+type CreateGroupInput {
+  name: String!
+  type: GroupType!
+  year: Int!
+  universityId: ID!
+}
+
+type UpdateGroupInput {
+  id: ID!
+  name: String
+  type: GroupType
+  year: Int
+  universityId: ID
+}
+
+type CreateUniversityInput {
+  name: String!
+  address: String!
+}
+
+type UpdateUniversityInput {
+  id: ID!
+  name: String
+  address: String
+}
+
+# Outputs
+type EducatorPageable {
+  context: [Educator!]!
+  nextCursor: String!
+  previousCursor: String!
+}
+
+type EducationSubjectPageable {
+  context: [EducationSubject!]!
+  nextCursor: String!
+  previousCursor: String!
+}
+
+type EducationSubjectPageable {
+  context: [EducationSubject!]!
+  nextCursor: String!
+  previousCursor: String!
+}
+
+# Types
+type Schedule {
+  id: ID!
+  name: String!
+  dateStart: Date!
+  dateEnd: Date!
+  university: University!
+  lessonsGroupByWeekDay: [LessonGroupByWeekDay!]!
+}
+
+type LessonGroupByWeekDay {
+  weekDay: WeekDay!
+  lessons: [Lesson!]!
+}
+
+type Lesson {
+  id: ID!
+  time: time!
+  weekDay: WeekDay!
+  weekType: WeekType!
+  educationSubject: EducationSubject!
+  educationSubjectType: EducationSubjectType!
+  educator: Educator!
+  classroom: String!
+  group: Group!
+  schedule: Schedule!
+}
+
+type EducationSubject {
+  id: ID!
+  name: String!
+  university: University!
+}
+
+type Educator {
+  id: ID!
+  firstname: String!
+  lastname: String!
+  patronymic: String!
+  university: University!
+}
+
+type Group {
+  id: ID!
+  name: String!
+  type: GroupType!
+  year: Int! # Год постпуления(начало учебного года)?? как назвать?
+  # Можно еще год окончания добавить
+  university: University!
+}
+
+type University {
+  id: ID!
+  name: String!
+  address: String!
+}
+
+# Enums
+enum EducationSubjectType {
+  LECTURE
+  PRACTICE
+  LABORATORY
+}
+
+enum WeekDay {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum WeekType {
+  EVEN
+  ODD
+}
+
+enum GroupType {
+  FULL_TIME
+  REMOTE # Как назвать заочную группу?
+}
