@@ -18,9 +18,9 @@ type Mutation {
   updateEducationSubject(input: UpdateEducationSubjectInput!): Subject!
   removeEducationSubject(id: ID!): Boolean!
 
-  createEducation(input: CreateEducationInput!): Education!
-  updateEducation(input: UpdateEducationInput!): Education!
-  removeEducation(id: ID!): Boolean!
+  createEducator(input: CreateEducatorInput!): Educator!
+  updateEducator(input: UpdateEducatorInput!): Educator!
+  removeEducator(id: ID!): Boolean!
 
   createGroup(input: CreateGroupInput!): Group!
   updateGroup(input: UpdateGroupInput!): Group!
@@ -32,10 +32,8 @@ type Mutation {
 }
 
 # Filters
-# Если НЕ передавать НЕобязательные свойства, то фильтровать НЕ будет!!
 type WeeklyScheduleFilter {
-  # День, который входит в интервал расписания
-  # *ищется между Schedule.dateStart и Schedule.dateEnd
+  # День, который входит в интервал расписания (ищется между Schedule.dateStart и Schedule.dateEnd)
   date: Date!
   weekDay: [WeekDay!]
   weekType: WeekType
@@ -43,7 +41,7 @@ type WeeklyScheduleFilter {
   educationSubjectId: ID
   educationId: ID
   educationSubjectType: EducationSubjectType
-  classroom: String
+  room: String
 }
 
 type EducatorFilter {
@@ -77,26 +75,28 @@ type UpdateScheduleInput {
 # При создании или изменении урока, нужно проверять чтоб
 # Schedule.universityId == Group.universityId == EducationSubject.universityId == educator.universityId
 type CreateLessonInput {
-  time: time!
+  timeStart: Time!
+  timeEnd: Time!
   weekDay: WeekDay!
   weekType: WeekType!
   educationSubjectId: ID!
   educationSubjectType: EducationSubjectType!
   educatorId: ID!
-  classroom: String!
+  room: String!
   groupId: ID!
   scheduleId: ID!
 }
 
 type UpdateLessonInput {
   id: ID!
-  time: time
+  timeStart: Time
+  timeEnd: Time
   weekDay: WeekDay
   weekType: WeekType
   educationSubjectId: ID
   educationSubjectType: EducationSubjectType
   educatorId: ID
-  classroom: String
+  room: String
   groupId: ID
   scheduleId: ID
 }
@@ -129,7 +129,8 @@ type UpdateEducatorInput {
 
 type CreateGroupInput {
   name: String!
-  type: GroupType!
+  studyType: StudyType!
+  educationType: EducationType!
   year: Int!
   universityId: ID!
 }
@@ -137,7 +138,8 @@ type CreateGroupInput {
 type UpdateGroupInput {
   id: ID!
   name: String
-  type: GroupType
+  studyType: StudyType
+  educationType: EducationType
   year: Int
   universityId: ID
 }
@@ -166,12 +168,6 @@ type EducationSubjectPageable {
   previousCursor: String!
 }
 
-type EducationSubjectPageable {
-  context: [EducationSubject!]!
-  nextCursor: String!
-  previousCursor: String!
-}
-
 # Types
 type Schedule {
   id: ID!
@@ -189,13 +185,14 @@ type LessonGroupByWeekDay {
 
 type Lesson {
   id: ID!
-  time: time!
+  timeStart: Time!
+  timeEnd: Time!
   weekDay: WeekDay!
   weekType: WeekType!
   educationSubject: EducationSubject!
   educationSubjectType: EducationSubjectType!
   educator: Educator!
-  classroom: String!
+  room: String!
   group: Group!
   schedule: Schedule!
 }
@@ -217,16 +214,23 @@ type Educator {
 type Group {
   id: ID!
   name: String!
-  type: GroupType!
-  year: Int! # Год постпуления(начало учебного года)?? как назвать?
-  # Можно еще год окончания добавить
+  studyType: StudyType!
+  educationType: EducationType!
+  admission: Date!
+  graduation: Date!
   university: University!
 }
 
 type University {
   id: ID!
   name: String!
-  address: String!
+  address: [Address!]!
+}
+
+type Address {
+  id: ID!
+  value: String!
+  university: University!
 }
 
 # Enums
@@ -251,7 +255,13 @@ enum WeekType {
   ODD
 }
 
-enum GroupType {
+enum StudyType {
   FULL_TIME
-  REMOTE # Как назвать заочную группу?
+  PART_TIME
+}
+
+enum EducationType {
+  BAKALAVRIAT
+  MAGISTRACY
+  SPECIALITET
 }
