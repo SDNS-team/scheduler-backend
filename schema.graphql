@@ -1,5 +1,5 @@
 type Query {
-  schedule(filter: ScheduleFilter!): Schedule
+  schedule(filter: ScheduleFilter!): [GroupByLesson!]!
 
   educators(filter: EducatorFilter!): EducatorPageable!
   educationSubjects(filter: EducationSubjectFilter!): EducationSubjectPageable!
@@ -33,13 +33,13 @@ type Mutation {
 
 # Filters
 type ScheduleFilter {
-  # День, который входит в интервал расписания (ищется между Schedule.dateStart и Schedule.dateEnd)
-  date: Date!
+  dateStart: Date!
+  dateEnd: Date!
   weekDay: [WeekDay!]
   weekType: WeekType
   groupId: ID
   educationSubjectId: ID
-  educationId: ID
+  educatorId: ID
   educationSubjectType: EducationSubjectType
   room: String
 }
