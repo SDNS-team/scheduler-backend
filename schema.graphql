@@ -1,5 +1,5 @@
 type Query {
-  weeklySchedule(filter: WeeklyScheduleFilter!): Schedule
+  schedule(filter: ScheduleFilter!): Schedule
 
   educators(filter: EducatorFilter!): EducatorPageable!
   educationSubjects(filter: EducationSubjectFilter!): EducationSubjectPageable!
@@ -14,8 +14,8 @@ type Mutation {
   updateLesson(input: UpdateLessonInput!): Lesson!
   removeLesson(id: ID!): Boolean!
 
-  createEducationSubject(input: CreateEducationSubjectInput!): Subject!
-  updateEducationSubject(input: UpdateEducationSubjectInput!): Subject!
+  createEducationSubject(input: CreateEducationSubjectInput!): EducationSubject!
+  updateEducationSubject(input: UpdateEducationSubjectInput!): EducationSubject!
   removeEducationSubject(id: ID!): Boolean!
 
   createEducator(input: CreateEducatorInput!): Educator!
@@ -32,7 +32,7 @@ type Mutation {
 }
 
 # Filters
-type WeeklyScheduleFilter {
+type ScheduleFilter {
   # День, который входит в интервал расписания (ищется между Schedule.dateStart и Schedule.dateEnd)
   date: Date!
   weekDay: [WeekDay!]
@@ -62,6 +62,7 @@ type CreateScheduleInput {
   dateStart: Date!
   dateEnd: Date!
   universityId: ID!
+  groupId: ID!
 }
 
 type UpdateScheduleInput {
@@ -70,6 +71,7 @@ type UpdateScheduleInput {
   dateStart: Date
   dateEnd: Date
   universityId: ID
+  groupId: ID
 }
 
 # При создании или изменении урока, нужно проверять чтоб
@@ -175,11 +177,13 @@ type Schedule {
   dateStart: Date!
   dateEnd: Date!
   university: University!
-  lessonsGroupByWeekDay: [LessonGroupByWeekDay!]!
+  group: Group!
+  groupByLesson: [GroupByLesson!]!
 }
 
-type LessonGroupByWeekDay {
+type GroupByLesson {
   weekDay: WeekDay!
+  weekType: WeekType!
   lessons: [Lesson!]!
 }
 
@@ -253,6 +257,7 @@ enum WeekDay {
 enum WeekType {
   EVEN
   ODD
+  REGULAR
 }
 
 enum StudyType {
