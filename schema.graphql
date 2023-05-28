@@ -1,0 +1,272 @@
+type Query {
+  schedule(filter: ScheduleFilter!): [GroupByLesson!]!
+
+  educators(filter: EducatorFilter!): EducatorPageable!
+  educationSubjects(filter: EducationSubjectFilter!): EducationSubjectPageable!
+}
+
+type Mutation {
+  createSchedule(input: CreateScheduleInput!): Schedule!
+  updateSchedule(input: UpdateScheduleInput!): Schedule!
+  removeSchedule(id: ID!): Boolean!
+
+  createLesson(input: CreateLessonInput!): Lesson!
+  updateLesson(input: UpdateLessonInput!): Lesson!
+  removeLesson(id: ID!): Boolean!
+
+  createEducationSubject(input: CreateEducationSubjectInput!): EducationSubject!
+  updateEducationSubject(input: UpdateEducationSubjectInput!): EducationSubject!
+  removeEducationSubject(id: ID!): Boolean!
+
+  createEducator(input: CreateEducatorInput!): Educator!
+  updateEducator(input: UpdateEducatorInput!): Educator!
+  removeEducator(id: ID!): Boolean!
+
+  createGroup(input: CreateGroupInput!): Group!
+  updateGroup(input: UpdateGroupInput!): Group!
+  removeGroup(id: ID!): Boolean!
+
+  createUniversity(input: CreateUniversityInput!): University!
+  updateUniversity(input: UpdateUniversityInput!): University!
+  removeUniversity(id: ID!): Boolean!
+}
+
+# Filters
+type ScheduleFilter {
+  dateStart: Date!
+  dateEnd: Date!
+  weekDay: [WeekDay!]
+  weekType: WeekType
+  groupId: ID
+  educationSubjectId: ID
+  educatorId: ID
+  educationSubjectType: EducationSubjectType
+  room: String
+}
+
+type EducatorFilter {
+  firstname: String
+  lastname: String
+  patronymic: String
+  universityId: ID
+}
+
+type EducationSubjectFilter {
+  name: String
+  universityId: ID
+}
+
+# Inputs
+type CreateScheduleInput {
+  name: String!
+  dateStart: Date!
+  dateEnd: Date!
+  universityId: ID!
+  groupId: ID!
+}
+
+type UpdateScheduleInput {
+  id: ID!
+  name: String
+  dateStart: Date
+  dateEnd: Date
+  universityId: ID
+  groupId: ID
+}
+
+# При создании или изменении урока, нужно проверять чтоб
+# Schedule.universityId == Group.universityId == EducationSubject.universityId == educator.universityId
+type CreateLessonInput {
+  timeStart: Time!
+  timeEnd: Time!
+  weekDay: WeekDay!
+  weekType: WeekType!
+  educationSubjectId: ID!
+  educationSubjectType: EducationSubjectType!
+  educatorId: ID!
+  room: String!
+  groupId: ID!
+  scheduleId: ID!
+}
+
+type UpdateLessonInput {
+  id: ID!
+  timeStart: Time
+  timeEnd: Time
+  weekDay: WeekDay
+  weekType: WeekType
+  educationSubjectId: ID
+  educationSubjectType: EducationSubjectType
+  educatorId: ID
+  room: String
+  groupId: ID
+  scheduleId: ID
+}
+
+type CreateEducationSubjectInput {
+  name: String!
+  universityId: ID!
+}
+
+type UpdateEducationSubjectInput {
+  id: ID!
+  name: String
+  universityId: ID!
+}
+
+type CreateEducatorInput {
+  firstname: String
+  lastname: String!
+  patronymic: String
+  universityId: ID!
+}
+
+type UpdateEducatorInput {
+  id: ID!
+  firstname: String
+  lastname: String
+  patronymic: String
+  universityId: ID
+}
+
+type CreateGroupInput {
+  name: String!
+  studyType: StudyType!
+  educationType: EducationType!
+  year: Int!
+  universityId: ID!
+}
+
+type UpdateGroupInput {
+  id: ID!
+  name: String
+  studyType: StudyType
+  educationType: EducationType
+  year: Int
+  universityId: ID
+}
+
+type CreateUniversityInput {
+  name: String!
+  address: String!
+}
+
+type UpdateUniversityInput {
+  id: ID!
+  name: String
+  address: String
+}
+
+# Outputs
+type EducatorPageable {
+  context: [Educator!]!
+  nextCursor: String!
+  previousCursor: String!
+}
+
+type EducationSubjectPageable {
+  context: [EducationSubject!]!
+  nextCursor: String!
+  previousCursor: String!
+}
+
+# Types
+type Schedule {
+  id: ID!
+  name: String!
+  dateStart: Date!
+  dateEnd: Date!
+  university: University!
+  group: Group!
+  groupByLesson: [GroupByLesson!]!
+}
+
+type GroupByLesson {
+  weekDay: WeekDay!
+  weekType: WeekType!
+  lessons: [Lesson!]!
+}
+
+type Lesson {
+  id: ID!
+  timeStart: Time!
+  timeEnd: Time!
+  weekDay: WeekDay!
+  weekType: WeekType!
+  educationSubject: EducationSubject!
+  educationSubjectType: EducationSubjectType!
+  educator: Educator!
+  room: String!
+  group: Group!
+  schedule: Schedule!
+}
+
+type EducationSubject {
+  id: ID!
+  name: String!
+  university: University!
+}
+
+type Educator {
+  id: ID!
+  firstname: String!
+  lastname: String!
+  patronymic: String!
+  university: University!
+}
+
+type Group {
+  id: ID!
+  name: String!
+  studyType: StudyType!
+  educationType: EducationType!
+  admission: Date!
+  graduation: Date!
+  university: University!
+}
+
+type University {
+  id: ID!
+  name: String!
+  address: [Address!]!
+}
+
+type Address {
+  id: ID!
+  value: String!
+  university: University!
+}
+
+# Enums
+enum EducationSubjectType {
+  LECTURE
+  PRACTICE
+  LABORATORY
+}
+
+enum WeekDay {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum WeekType {
+  EVEN
+  ODD
+  REGULAR
+}
+
+enum StudyType {
+  FULL_TIME
+  PART_TIME
+}
+
+enum EducationType {
+  BAKALAVRIAT
+  MAGISTRACY
+  SPECIALITET
+}
