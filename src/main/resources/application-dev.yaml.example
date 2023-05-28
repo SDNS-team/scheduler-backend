@@ -1,0 +1,11 @@
+spring:
+  r2dbc:
+    url: "r2dbc:postgresql://localhost:5442/scheduler"
+    username: admin
+    password: admin
+    initialization-mode: always
+  liquibase:
+    url: "jdbc:postgresql://localhost:5442/scheduler"
+    user: admin
+    password: admin
+    change-log: classpath:changelog.yaml
